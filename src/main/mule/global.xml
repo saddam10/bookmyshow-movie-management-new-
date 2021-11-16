@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json-logger 
+http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<db:config
+		name="Database_Config"
+		doc:name="Database Config"
+		doc:id="a3836b3a-39ea-4390-8872-452c335d5e52"
+	>
+		<db:my-sql-connection
+			host="${db.host}"
+			port="${db.port}"
+			user="${secure::db.username}"
+			password="${secure::db.password}"
+			database="${db.database-name}"
+		>
+			<reconnection>
+				<reconnect
+					frequency="${db.reconnection-strategy-frequency-ms}"
+					count="${db.reconnection-strategy-attempts}" />
+			</reconnection>
+		</db:my-sql-connection>
+	</db:config>
+	<global-property
+		doc:name="Global Property"
+		doc:id="1cc0e37c-2177-42b3-ba8b-e6522c8e8ccc"
+		name="mule.env"
+		value="dev" />
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="77b4b61c-13ba-402d-b098-2830824cd225"
+		file="${mule.env}.yaml" />
+	<http:listener-config name="bookmyshow-httpListenerConfig">
+		<http:listener-connection
+			host="${http.host}"
+			port="${http.port}" />
+	</http:listener-config>
+	<apikit:config
+		name="bookmyshow-config"
+		api="resource::cdd0f708-6acf-4dab-b2ea-a31dd628ca55:bookmyshow:1.0.5:raml:zip:bookmyshow.raml"
+		outboundHeadersMapName="outboundHeaders"
+		httpStatusVarName="httpStatus" />
+	<json-logger:config
+		name="JSON_Logger_Config"
+		doc:name="JSON Logger Config"
+		doc:id="63420add-f5e9-4d1c-8cba-d8fbdffb2e12"
+		environment="${mule.env}"
+		parseContentFieldsInJsonOutput="false" />
+	<global-property
+		doc:name="Global Property"
+		doc:id="9ede935f-6e8a-44e8-b435-86e445ce4a09"
+		name="mule.env"
+		value="dev" />
+	<wsc:config
+		name="Web_Service_Consumer_Config"
+		doc:name="Web Service Consumer Config"
+		doc:id="5e118219-e9d2-422c-9e68-3437c0a83c63"
+	>
+		<wsc:connection
+			wsdlLocation="${soap.wsdlLocation}"
+			service="${soap.service}"
+			port="${soap.port}"
+			address="${soap.address}"
+		>
+			<reconnection>
+				<reconnect
+					frequency="${soap.reconnection-strategy-frequency-ms}"
+					count="${soap.reconnection-strategy-attempts}" />
+			</reconnection>
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+	<api-gateway:autodiscovery
+		apiId="${policy.autodiscovery-id}"
+		ignoreBasePath="true"
+		doc:name="API Autodiscovery"
+		doc:id="b2eb9910-cde4-4827-b1fe-dfd65b28762f"
+		flowRef="bookmyshow-main" />
+	<configuration
+		doc:name="Configuration"
+		doc:id="9fee2838-6dff-49b6-8928-ab654e7416c6"
+		defaultErrorHandler-ref="Global_Error_Handler" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="59e9dee9-0e2f-4281-a105-57452de7b46f" file="secure-${mule.env}.yaml" key="${key}" >
+		<secure-properties:encrypt algorithm="Blowfish" mode="ECB"/>
+	</secure-properties:config>
+	<global-property doc:name="Global Property" doc:id="dc7dd620-4f67-4255-bb2d-ba084240811f" name="key" value="test123" />
+	<error-handler name="Global_Error_Handler">
+            <on-error-propagate type="APIKIT:BAD_REQUEST" doc:name="On Error Propagate Bad Request">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED" doc:name="On Error Propagate Method Not Allowed">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE" doc:name="On Error Propagate Not Acceptable">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE" doc:name="On Error Propagate Unsupported Media Type">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED" doc:name="On Error Propagate Not Implemented">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+			<on-error-propagate type="APIKIT:NOT_FOUND" doc:name="On Error Propagate Not Found">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate DB Error" doc:id="16c1e853-c92f-415f-b5ce-3396093ebde2" type="DB:CONNECTIVITY,DB:QUERY_EXECUTION">
+			<ee:transform doc:name="Transform Message" doc:id="23522936-edc1-41aa-8805-7401eb4a10f9" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[output application/json
+---
+{
+	message: error.errorMessage,
+	description: error.description,
+	errorType : error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="3dd50432-1bd6-4ca4-87f6-36b786c55fe0" config-ref="JSON_Logger_Config" message="Error Response">
+				<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(payload) 
+}]]]></json-logger:content>
+			</json-logger:logger>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate WSC Error" doc:id="2aed4229-ff52-4c45-9410-1c92f5d7d413" type="WSC:BAD_REQUEST,WSC:BAD_RESPONSE,WSC:CONNECTIVITY,WSC:TIMEOUT">
+			<ee:transform doc:name="Transform Message" doc:id="d0f9f572-9d39-4bea-b1e4-41e965cc2f9f" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[output application/json
+---
+{
+	message: error.errorMessage,
+	description: error.description,
+	errorType : error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="615a065b-f330-4704-a0af-1222f1c71a43" config-ref="JSON_Logger_Config" message="Error Response"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate Any" doc:id="89d03d36-926c-4436-9423-c684b18c5d7d" >
+			<ee:transform doc:name="Transform Message" doc:id="46fc472a-e334-4d30-937b-24c178a0b878" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[output application/json
+---
+{
+	message: error.errorMessage,
+	description: error.description,
+	errorType : error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="adc297db-794c-4e97-b27c-42716d59e009" config-ref="JSON_Logger_Config" message="Error Message"/>
+		</on-error-propagate>
+            
+        
+</error-handler>
+  
+</mule>

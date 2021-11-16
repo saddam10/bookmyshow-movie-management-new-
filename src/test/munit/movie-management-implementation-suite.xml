@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd"
+>
+	<munit:config name="movie-management-implementation-suite.xml" />
+	<munit:test
+		name="GET\movies-test"
+		doc:id="ea9c440a-c9f0-4bde-a47d-8c05c1efed11"
+	>
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="get:\movies:bookmyshow-config" />
+		</munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock Select"
+				doc:id="acd061b6-91bd-4474-947b-843e5f01629d"
+				processor="db:select"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="1ada460c-08cd-42e5-bc4b-bd626e7e8587"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- readUrl('classpath://GETmoviestest\mock_payload.dwl')]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:variables>
+						<munit-tools:variable
+							key="outboundHeaders"
+							value="#[readUrl('classpath://GETmoviestest\mock_variable_.dwl')]" />
+						<munit-tools:variable
+							key="sql-query"
+							value="#[output application/java --- readUrl('classpath://GETmoviestest\mock_variable_1.dwl')]"
+							mediaType="application/java"
+							encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event
+				doc:name="Set Input"
+				doc:id="f7a90562-6913-4f74-bc30-6fb95d90f5cc"
+			>
+				<munit:payload
+					value="#[readUrl('classpath://GETmoviestest\set-event_payload.dwl')]"
+					encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GETmoviestest\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable
+						key="outboundHeaders"
+						value="#[readUrl('classpath://GETmoviestest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to GET\movies"
+				doc:id="6871ffde-cf17-4b2b-8fc5-7e7d2d72c519"
+				name="GET\movies" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert
+				doc:name="Assert payload"
+				doc:id="4d8e82d2-b403-4e7e-a834-7a44273d64ae"
+				message="The payload does not match"
+			>
+				<munit-tools:that><![CDATA[#[%dw 2.0
+import GETmoviestest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call
+				doc:name="Verify End Log"
+				doc:id="cacd8cd4-38c6-4e85-bb93-0612de8b8b55"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="977a1207-d37a-4206-9de9-5c1815b994b0"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify sql-query"
+				doc:id="90c6c20b-990e-417b-8f53-de76c9cbd891"
+				processor="set-variable"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="eae4d6d6-ccea-43fd-b519-b3e77b118672"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Start Log"
+				doc:id="da6ba7de-4da2-43e2-b42c-fb8016fb230d"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="70c7c058-86c3-43eb-ac0f-3d31f6665736"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Transform Message"
+				doc:id="53e5d4c4-1439-4fc0-bc2d-3e32247f6ba5"
+				processor="ee:transform"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="08786764-6a9c-4973-b81e-f897a9fb7fd0"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="GET\movie-details-test"
+		doc:id="e16b576e-8058-4420-a9a4-61c189c0d205"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock Select"
+				doc:id="db348e7b-1d24-40ab-b64f-7a4d84fd0096"
+				processor="db:select"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="fe22c1d7-a11b-4f4d-aaa9-e24ac3c2a1fc"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- readUrl('classpath://GETmoviedetailstest\mock_payload.dwl')]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:variables>
+						<munit-tools:variable
+							key="outboundHeaders"
+							value="#[readUrl('classpath://GETmoviedetailstest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event
+				doc:name="Set Input"
+				doc:id="2c082f60-d121-474f-8222-2527c2d3a908"
+			>
+				<munit:payload
+					value="#[readUrl('classpath://GETmoviedetailstest\set-event_payload.dwl')]"
+					encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GETmoviedetailstest\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable
+						key="outboundHeaders"
+						value="#[readUrl('classpath://GETmoviedetailstest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to GET\movie-details"
+				doc:id="dab78659-7068-4154-9557-2d4116cd2726"
+				name="GET\movie-details" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert
+				doc:name="Assert payload"
+				doc:id="d2526c23-b695-4b10-a68a-859fce3e1f75"
+				message="The payload does not match"
+			>
+				<munit-tools:that><![CDATA[#[%dw 2.0
+import GETmoviedetailstest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call
+				doc:name="Verify Start Log"
+				doc:id="ce028910-309f-446b-a045-74522ee1d2e6"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="bdfa7478-e4a1-4419-ab41-f0bf08225626"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify End Log"
+				doc:id="5844e001-e17c-4a59-83d6-ca57df3374fc"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="bfd61e58-e3b6-4607-af2d-e8b7215842fd"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Transform Message"
+				doc:id="d817ca9c-8c2d-4441-b239-2cd4a17c2854"
+				processor="ee:transform"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="bd10b8b7-1a06-45d7-8168-a4978d25278b"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="POST\schedules-test"
+		doc:id="0911d7c0-38bc-4e33-8879-adc313913dce"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock Select"
+				doc:id="c15a4b19-c426-4800-9f8f-67c29162c682"
+				processor="db:select"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="f663cdcd-22f3-445e-b340-ab993c279c2d"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- readUrl('classpath://POSTschedulestest\mock_payload.dwl')]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:variables>
+						<munit-tools:variable
+							key="outboundHeaders"
+							value="#[readUrl('classpath://POSTschedulestest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event
+				doc:name="Set Input"
+				doc:id="51c4bd71-9ece-49f8-b30a-3fc2d3010e07"
+			>
+				<munit:payload
+					value="#[readUrl('classpath://POSTschedulestest\set-event_payload.dwl')]"
+					encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://POSTschedulestest\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable
+						key="outboundHeaders"
+						value="#[readUrl('classpath://POSTschedulestest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to POST\schedules"
+				doc:id="24566600-bfe3-4991-afd9-b0a2607b7a60"
+				name="POST\schedules" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert
+				doc:name="Assert payload"
+				doc:id="9b48a6f5-c235-4448-906f-b3a2c4966308"
+				message="The payload does not match"
+			>
+				<munit-tools:that><![CDATA[#[%dw 2.0
+import POSTschedulestest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call
+				doc:name="Verify Start Log"
+				doc:id="6082a27a-3bf6-4f43-9d3c-92e83ce29b50"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="d5278fa7-20f1-43d6-a302-127fd740175f"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Transform Message"
+				doc:id="1362e1cd-c411-4ecd-b68b-f038988b2d08"
+				processor="ee:transform"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="c1678474-78f7-46ea-bfc6-4623523720c2"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify End Log"
+				doc:id="14b276e6-e7ac-4c5c-b41d-9446ab70dfa3"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="33797459-daba-4c05-aa19-a669f36b9ac3"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="GET\discounts-test"
+		doc:id="8561d45c-4a60-44a3-9a7f-17621f1de364"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock Consume"
+				doc:id="850d45ab-af45-4cc8-89e0-e9cbd52f189f"
+				processor="wsc:consume"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="355282a4-be59-4f1c-b474-51db4745c291"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- readUrl('classpath://GETdiscountstest\mock_payload.dwl')]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://GETdiscountstest\mock_attributes.dwl')]" />
+					<munit-tools:variables>
+						<munit-tools:variable
+							key="outboundHeaders"
+							value="#[readUrl('classpath://GETdiscountstest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event
+				doc:name="Set Input"
+				doc:id="4b00eead-2798-4ffe-a729-48dc3a2c30be"
+			>
+				<munit:payload
+					value="#[readUrl('classpath://GETdiscountstest\set-event_payload.dwl')]"
+					encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GETdiscountstest\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable
+						key="outboundHeaders"
+						value="#[readUrl('classpath://GETdiscountstest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to GET\discounts"
+				doc:id="4b7d45e1-4245-46a0-b49e-f6d415f82cad"
+				name="GET\discounts" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert
+				doc:name="Assert payload"
+				doc:id="41a88eec-563d-46dc-a3ac-a9b31baa58c0"
+				message="The payload does not match"
+			>
+				<munit-tools:that><![CDATA[#[%dw 2.0
+import GETdiscountstest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call
+				doc:name="Verify End Log"
+				doc:id="7d333d7c-2fdf-4416-bb0b-6675112459e4"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="1b079ec0-b7cd-4edf-88e6-dda937ad0661"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Transform Message"
+				doc:id="7f86cb17-9438-4603-b7b7-a0c4e350b3a7"
+				processor="ee:transform"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="03871128-f1b5-4c19-86a0-1f3268343429"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Transform Message"
+				doc:id="2e33e8e0-b588-4cf8-b21d-ec03db78e163"
+				processor="ee:transform"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="97151f04-08a8-4761-8743-0eba6ba1dff5"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Start Log"
+				doc:id="cd1637f9-85bc-4865-a121-ef1c1c3553de"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="cbb124b1-112b-49f6-9d81-8ba71ed2f8ec"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="POST\bookings-test"
+		doc:id="538502e3-1a34-4987-bdad-7ea4cd4eed07"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock Consume"
+				doc:id="b24cf1ac-c4ea-4a65-887d-a3b47687bf9d"
+				processor="wsc:consume"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="c29898db-0a68-4c1d-8c33-a331b7f751c1"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- readUrl('classpath://POSTbookingstest\mock_payload.dwl')]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://POSTbookingstest\mock_attributes.dwl')]" />
+					<munit-tools:variables>
+						<munit-tools:variable
+							key="outboundHeaders"
+							value="#[readUrl('classpath://POSTbookingstest\mock_variable_.dwl')]" />
+						<munit-tools:variable
+							key="originalPayload"
+							value="#[output application/json --- readUrl('classpath://POSTbookingstest\mock_variable_1.dwl')]"
+							mediaType="application/json"
+							encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event
+				doc:name="Set Input"
+				doc:id="0c58c0a4-9834-43d9-beb1-b280280047e5"
+			>
+				<munit:payload
+					value="#[output application/json --- readUrl('classpath://POSTbookingstest\set-event_payload.dwl')]"
+					encoding="UTF-8"
+					mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://POSTbookingstest\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable
+						key="outboundHeaders"
+						value="#[readUrl('classpath://POSTbookingstest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to POST\bookings"
+				doc:id="56739f2e-3d76-41ee-bb90-592bf488394d"
+				name="POST\bookings" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert
+				doc:name="Assert payload"
+				doc:id="2c275637-d3ed-40d2-aae3-174c87c34750"
+				message="The payload does not match"
+			>
+				<munit-tools:that><![CDATA[#[%dw 2.0
+import POSTbookingstest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call
+				doc:name="Verify End Log"
+				doc:id="6394a75c-1cc6-432b-a279-038176ca6b73"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="ffc4de10-069d-4716-aca8-1a5180d70376"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Transform Message"
+				doc:id="7c06ae0d-d84b-40fb-95bb-ca1fa5a29eac"
+				processor="ee:transform"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="76de0070-9fa6-4a51-aaa9-a84691a86a19"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Transform Message"
+				doc:id="011e5915-4dc5-4138-a6e7-5a7647664fdc"
+				processor="ee:transform"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="fcbc8816-8149-411c-b180-21444c47d0c7"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call
+				doc:name="Verify Start Log"
+				doc:id="3f2ad2cc-2dc8-435b-9e56-e8da7e89fd98"
+				processor="json-logger:logger"
+				times="1"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="22678850-f959-4400-b115-cd675798440f"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="APIKIT-BAD-REQUEST-Error-Testing"
+		description="connectivity error"
+		expectedErrorType="APIKIT:BAD_REQUEST"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				processor="apikit:router"
+				doc:name="Mock When APIKIT:BAD_REQUEST"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="8ce683fc-3682-42d0-a79e-fdd6b6d5d992"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- []]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				name="bookmyshow-main"
+				doc:id="013c46a5-3f7c-4824-82cd-e1a4219bf0f5"
+				doc:name="Flow-ref to bookmyshow-main" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals
+				doc:name="Assert equals"
+				doc:id="ee466c37-73f2-4c1e-8d2c-b801567e5355"
+				actual="#[vars.httpStatus]"
+				expected="400" />
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="APIKIT-METHOD-NOT-ALLOWED-Error-Testing"
+		doc:id="3621f1a9-3ff7-459e-a99f-751609f312f3"
+		description="connectivity error"
+		expectedErrorType="APIKIT:METHOD_NOT_ALLOWED"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When APIKIT:METHOD_NOT_ALLOWED "
+				doc:id="9d532bdb-5627-4749-810f-2ac961ac68c9"
+				processor="apikit:router"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="8ce683fc-3682-42d0-a79e-fdd6b6d5d992"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- []]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED " />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to bookmyshow-main"
+				doc:id="3f8fac0b-eb86-45c0-a106-10a62dd3a196"
+				name="bookmyshow-main" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals
+				doc:name="Assert equals"
+				doc:id="42261660-ba76-4105-ba4c-d6b430dcb8ee"
+				actual="#[vars.httpStatus]"
+				expected="405" />
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="APIKIT-NOT-ACCEPTABLE-Error-Testing"
+		doc:id="946eae5f-ca90-4b4d-a4cb-c72e5052cbab"
+		description="connectivity error"
+		expectedErrorType="APIKIT:NOT_ACCEPTABLE"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When APIKIT:NOT_ACCEPTABLE"
+				doc:id="7e604e3a-704e-43b6-99e1-e4ff5b0ea49b"
+				processor="apikit:router"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="8ce683fc-3682-42d0-a79e-fdd6b6d5d992"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- []]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to bookmyshow-main"
+				doc:id="3c26c326-de37-44cb-b453-e81bfb03c496"
+				name="bookmyshow-main" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals
+				doc:name="Assert equals"
+				doc:id="c9b41d2a-8817-452d-bcbc-3c7b31584277"
+				actual="#[vars.httpStatus]"
+				expected="406" />
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="APIKIT-UNSUPPORTED-MEDIA-TYPE-Error-Testing"
+		doc:id="10310274-dc1d-4eb7-8ff6-4d9f745221eb"
+		description="connectivity error"
+		expectedErrorType="APIKIT:UNSUPPORTED_MEDIA_TYPE"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When APIKIT:UNSUPPORTED_MEDIA_TYPE"
+				doc:id="63772df4-6fe6-45eb-9784-2e25fa13f6a7"
+				processor="apikit:router"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="8ce683fc-3682-42d0-a79e-fdd6b6d5d992"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- []]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to bookmyshow-main"
+				doc:id="fcf05eb0-3681-4aa4-a564-b607c1d166ee"
+				name="bookmyshow-main" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals
+				doc:name="Assert equals"
+				doc:id="045523b7-be99-48a8-8fbd-331bfbfe632c"
+				actual="#[vars.httpStatus]"
+				expected="415" />
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="APIKIT-NOT-IMPLEMENTED-Error-Testing"
+		doc:id="d1b6b467-3a33-45c0-994a-c9ffdc488a5c"
+		description="connectivity error"
+		expectedErrorType="APIKIT:NOT_IMPLEMENTED"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When APIKIT:NOT_IMPLEMENTED"
+				doc:id="50751564-00c0-41e6-ab17-b9f8957a87a1"
+				processor="apikit:router"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="8ce683fc-3682-42d0-a79e-fdd6b6d5d992"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- []]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to bookmyshow-main"
+				doc:id="e8c587d7-0630-4bb6-b213-8496e3a06d78"
+				name="bookmyshow-main" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals
+				doc:name="Assert equals"
+				doc:id="3ff52186-7a2d-4242-99a4-0d884807f672"
+				actual="#[vars.httpStatus]"
+				expected="501" />
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="APIKIT-NOT-FOUND-Error-Testing"
+		doc:id="c0b5a3c4-36ea-4fc9-824c-a0f719e3b757"
+		description="connectivity error"
+		expectedErrorType="APIKIT:NOT_FOUND"
+	>
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When APIKIT:NOT_FOUND"
+				doc:id="515a50c8-912a-4a14-9bfd-a8b7719a3d25"
+				processor="apikit:router"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="8ce683fc-3682-42d0-a79e-fdd6b6d5d992"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- []]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to bookmyshow-main"
+				doc:id="42e580f6-7886-43c2-aa83-8919d52336bb"
+				name="bookmyshow-main" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals
+				doc:name="Assert equals"
+				doc:id="8691b35c-e450-4b4d-8497-b48489ef656a"
+				actual="#[vars.httpStatus]"
+				expected="404" />
+		</munit:validation>
+	</munit:test>
+	<munit:test
+		name="DB-CONNECTIVITY-GET\movies-Error-Testing"
+		doc:id="e26a6057-3c22-4e96-a864-5892ceb39db0"
+		description="connectivity error"
+	expectedErrorType="DB:CONNECTIVITY">
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When APIKIT:NOT_FOUND"
+				doc:id="d906d29f-8c86-411d-a5f0-1b771877d05a"
+				processor="db:select"
+			>
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute
+						whereValue="1ada460c-08cd-42e5-bc4b-bd626e7e8587"
+						attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload
+						value="#[output application/java --- []]"
+						mediaType="application/java"
+						encoding="UTF-8" />
+					<munit-tools:error typeId="DB:CONNECTIVITY" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to GET\movies"
+				doc:id="8dfe48b6-6699-450d-a7bc-08d9965fcea6"
+				name="GET\movies" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call
+				doc:name="Verify call"
+				doc:id="f9fca7ab-e801-4a5b-ac4f-e8257adb1937"
+				processor="ee:transform"
+				atLeast="1"
+			>
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="23522936-edc1-41aa-8805-7401eb4a10f9" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+
+		</munit:validation>
+	
+</munit:test>
+	
+
+	<munit:test
+		name="WSC:CONNECTIVITY-GET\discounts-Error-Testing"
+		doc:id="d6db8ef7-aa9c-45e2-980d-2a49aad72e4c"
+		description="connectivity error"
+	expectedErrorType="WSC:CONNECTIVITY">
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When GET\discounts"
+				doc:id="35be09f0-be83-4056-b422-23235f8d7ebc"
+				processor="wsc:consume"
+			>
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="355282a4-be59-4f1c-b474-51db4745c291" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- []]" mediaType="application/java" encoding="UTF-8" />
+					<munit-tools:error typeId="WSC:CONNECTIVITY" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to GET\discounts"
+				doc:id="6accf885-b4eb-4dc2-9cb3-40a8c089da33"
+				name="GET\discounts" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call
+				doc:name="Verify call"
+				doc:id="fe3660bb-e865-446c-9313-a640ba00b516"
+				processor="ee:transform"
+				atLeast="1"
+			>
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="46fc472a-e334-4d30-937b-24c178a0b878" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+
+
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	
+		<munit:test
+		name="DB:BAD_SQL_SYNTAX-GET\movies-Error-Testing"
+		doc:id="ca739809-027f-4057-95b7-26bae2e5ad28"
+		description="connectivity error"
+	expectedErrorType="DB:BAD_SQL_SYNTAX">
+		<munit:behavior>
+			<munit-tools:mock-when
+				doc:name="Mock When GET\movies"
+				doc:id="cd564697-5176-4dd7-8906-75653687f211"
+				processor="db:select"
+			>
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="1ada460c-08cd-42e5-bc4b-bd626e7e8587" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- []]" mediaType="application/java" encoding="UTF-8" />
+					<munit-tools:error typeId="DB:BAD_SQL_SYNTAX" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref
+				doc:name="Flow-ref to GET\movies"
+				doc:id="448ecc93-8e18-4910-9e39-5579fb193e9f"
+				name="GET\movies" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call
+				doc:name="Verify call"
+				doc:id="f96d1f68-a5f7-4c01-ad39-fe3ee3d14da4"
+				processor="ee:transform"
+				atLeast="1"
+			>
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d0f9f572-9d39-4bea-b1e4-41e965cc2f9f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+
+
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+</mule>

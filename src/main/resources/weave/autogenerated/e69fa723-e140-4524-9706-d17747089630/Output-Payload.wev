@@ -1,0 +1,47 @@
+%dw 2.0
+
+type auto_e69fa723_e140_4524_9706_d17747089630_Output_Payload = {|
+  message: org_mule_runtime_api_message_Message | Null, 
+  description: String | Null, 
+  errorType: String | Null
+|}
+type org_mule_runtime_api_message_Message = {|
+  attributes?: org_mule_runtime_api_metadata_TypedValue, 
+  payload?: org_mule_runtime_api_metadata_TypedValue_13
+|} {"typeId": "org.mule.runtime.api.message.Message"}
+type org_mule_runtime_api_metadata_TypedValue_13 = {|
+  byteLength?: java_util_OptionalLong, 
+  dataType?: org_mule_runtime_api_metadata_DataType, 
+  length?: java_util_Optional_10, 
+  value?: java_lang_Object_14
+|} {"typeId": "org.mule.runtime.api.metadata.TypedValue"}
+type org_mule_runtime_api_metadata_DataType = org_mule_runtime_api_metadata_DataType
+
+
+type java_lang_Object_14 = {|  |} {"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+type java_util_Optional_10 = java_util_Optional_10
+
+
+type java_util_OptionalLong = java_util_OptionalLong
+
+
+
+
+type org_mule_runtime_api_metadata_TypedValue = {|
+  byteLength?: java_util_OptionalLong, 
+  dataType?: org_mule_runtime_api_metadata_DataType, 
+  length?: java_util_Optional_10, 
+  value?: java_lang_Object
+|} {"typeId": "org.mule.runtime.api.metadata.TypedValue"}
+type java_lang_Object = {|  |} {"class": "java.lang.Object",
+"typeId": "java.lang.Object"}
+
+
+
+
+
+
+

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>cdd0f708-6acf-4dab-b2ea-a31dd628ca55</groupId>
+  <artifactId>bookmyshow</artifactId>
+  <version>1.0.5</version>
+  <name>bookMyShow-old</name>
+  <properties>
+    <classifier>raml</classifier>
+    <main>bookmyshow.raml</main>
+    <originalFormatVersion>1.0</originalFormatVersion>
+    <apiVersion>v1</apiVersion>
+    <projectId>f44f50f7-6ac6-47da-9895-8edebfbcbb09</projectId>
+    <branchId>master</branchId>
+    <commitId>67e1e418fa97d0542400af4bd421ba2c58f09ea0</commitId>
+    <type>rest-api</type>
+    <mainFile>bookmyshow.raml</mainFile>
+  </properties>
+  <repositories>
+    <repository>
+      <id>anypoint-exchange</id>
+      <url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+    </repository>
+  </repositories>
+</project>

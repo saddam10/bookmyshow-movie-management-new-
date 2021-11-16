@@ -1,0 +1,19 @@
+%dw 2.0
+
+type auto_33b27fdd_2602_4fae_a1d7_c917de8f20df_Input_Payload = {
+  bookingTime: String, 
+  seatNumbers: Array<Any>, 
+  showTiming: String, 
+  netAmount: Number, 
+  mobileNumber: Number, 
+  theaterID: Number, 
+  format: String, 
+  movieID: Number, 
+  numberOfSeats: Number, 
+  showID: Number, 
+  audio: String, 
+  theaterName: String, 
+  movieName: String, 
+  _?: Any
+}
+

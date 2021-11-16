@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	
+	
+
+	<flow
+		name="GET\movies"
+		doc:id="e69fa723-e140-4524-9706-d17747089630">
+		<json-logger:logger doc:name="Start Log" doc:id="70c7c058-86c3-43eb-ac0f-3d31f6665736" config-ref="JSON_Logger_Config" message="Request received for GET/movies endpoint"/>
+		<set-variable
+			value='#[%dw 2.0&#10;&#10;&#10;&#10;---&#10;&#10;if(attributes.queryParams.city== "Mumbai" )&#10;&#10;"select movieID, movieName, rating from movie where movieID in ( 1,2,3,4)"&#10;&#10;else if (attributes.queryParams.city== "Pune")&#10;&#10;"select movieID, movieName, rating from movie where movieID in ( 1,2,3,5)"&#10;&#10;else "select movieID, movieName, rating from movie where movieID in ( 1,2,3,4,5)"]'
+			doc:name="sql-query"
+			doc:id="eae4d6d6-ccea-43fd-b519-b3e77b118672"
+			variableName="sql-query" />
+		<db:select
+			doc:name="Get List Of Movies"
+			doc:id="1ada460c-08cd-42e5-bc4b-bd626e7e8587"
+			config-ref="Database_Config"
+		>
+			<db:sql><![CDATA[#[vars."sql-query"]]]></db:sql>
+		</db:select>
+		<ee:transform
+			doc:name="Transform Message"
+			doc:id="08786764-6a9c-4973-b81e-f897a9fb7fd0"
+		>
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End Log" doc:id="977a1207-d37a-4206-9de9-5c1815b994b0" config-ref="JSON_Logger_Config" tracePoint="END" message="Response for GET/movies endpoint"/>
+	</flow>
+	<flow
+		name="GET\movie-details"
+		doc:id="3c5c4645-b99a-4644-a6ba-bb6a94d0d669"
+	>
+		<json-logger:logger doc:name="Start Log" doc:id="bdfa7478-e4a1-4419-ab41-f0bf08225626" config-ref="JSON_Logger_Config" message="Request received for GET/movies/{movie_id} endpoint"/>
+		<db:select
+			doc:name="Get Details Of Movie"
+			doc:id="fe22c1d7-a11b-4f4d-aaa9-e24ac3c2a1fc"
+			config-ref="Database_Config"
+		>
+			<db:sql><![CDATA[select * from movie
+where movieID= :movieID]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+movieID : attributes.uriParams.'movie_id'
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform
+			doc:name="Transform Message"
+			doc:id="bd10b8b7-1a06-45d7-8168-a4978d25278b"
+		>
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload[0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End Log" doc:id="bfd61e58-e3b6-4607-af2d-e8b7215842fd" config-ref="JSON_Logger_Config" tracePoint="END" message="Response for GET/movies/{movie_id} endpoint"/>
+	</flow>
+	<flow
+		name="POST\schedules"
+		doc:id="ba47e67b-fbbf-4c29-8725-4cee1fe83b5d"
+	>
+		<json-logger:logger doc:name="Start Log" doc:id="d5278fa7-20f1-43d6-a302-127fd740175f" config-ref="JSON_Logger_Config" message="Request received for GET/schedules endpoint"/>
+		<db:select
+			doc:name="Get Schedules"
+			doc:id="f663cdcd-22f3-445e-b340-ab993c279c2d"
+			config-ref="Database_Config"
+		>
+			<db:sql><![CDATA[SELECT theater.theaterID,theater.theaterName,theater.city,
+showSchedule.date,showSchedule.startTime,showSchedule.endTime, showSchedule.showID,
+showSchedule.totalSeats, showSchedule.availableSeats,
+showSchedule.pricePerSeat
+
+FROM theater
+INNER JOIN showSchedule
+ON showSchedule.theaterID = theater.theaterID
+where showSchedule.movieID = :movieID
+and showSchedule.date = :date]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	movieID:  attributes.queryParams.movieID,
+	date : attributes.queryParams.date
+	 
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform
+			doc:name="Transform Message To Response Payload"
+			doc:id="c1678474-78f7-46ea-bfc6-4623523720c2"
+		>
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json  
+---
+payload map {
+  theaterID: $.theaterID,
+  theaterName: $.theaterName,
+  date: ($.date - |PT5H30M|) as String {format: 'yyyy-MM-dd'},
+  slots: payload filter ((item, index) -> item.theaterID == $.theaterID) map {
+    showID: $.showID,  
+    startTime: ($.startTime - |PT5H30M|) as String {format: "HH:mm:ss"},
+    endTime: ($.endTime - |PT5H30M|) as String {format: "HH:mm:ss"},
+    totalSeats: $.totalSeats,
+    availableSeats: $.availableSeats,
+    pricePerSeat: $.pricePerSeat
+  }
+} distinctBy ((item, index) -> item.theaterID)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End Log" doc:id="33797459-daba-4c05-aa19-a669f36b9ac3" config-ref="JSON_Logger_Config" tracePoint="END" message="Response for GET/schedules endpoint"/>
+	</flow>
+	<flow
+		name="POST\bookings"
+		doc:id="33b27fdd-2602-4fae-a1d7-c917de8f20df"
+	>
+		<json-logger:logger doc:name="Start Log" doc:id="22678850-f959-4400-b115-cd675798440f" config-ref="JSON_Logger_Config" message="Request received for POST/bookings endpoint"/>
+		<ee:transform
+			doc:name="Create Soap Request And Store Original Payload In Var"
+			doc:id="76de0070-9fa6-4a51-aaa9-a84691a86a19"
+		>
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+ns ns0 http://localhost:8081/ticket-booking-service/
+output application/xml
+---
+{
+	ns0#bookTicket: {
+		mobileNumber: payload.mobileNumber,
+		movieID: payload.movieID,
+		showID: payload.showID,
+		audio: payload.audio,
+		format: payload.format,
+		theaterID: payload.theaterID,
+		bookingTime: payload.bookingTime as DateTime,
+		netAmount: payload.netAmount,
+		showTiming: payload.showTiming as DateTime,
+		numberOfSeats: payload.numberOfSeats,
+		seatNumbers: {
+			(payload.seatNumbers map ((item, index) -> 
+        seatNumber: item
+      ))
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="originalPayload"><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<wsc:consume doc:name="Consume Booking WS" doc:id="c29898db-0a68-4c1d-8c33-a331b7f751c1" config-ref="Web_Service_Consumer_Config" operation="bookTicket"/>
+		<choice
+			doc:name="Choice"
+			doc:id="e0c7610e-a793-49ce-a982-8d31a659fc70"
+		>
+			<when expression='#[payload.body.bookTicketResponse.success == "1"]'>
+				<ee:transform
+					doc:name="Transform Message To Response Payload"
+					doc:id="fcbc8816-8149-411c-b180-21444c47d0c7"
+				>
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  success: payload.body.bookTicketResponse.success ,
+  message: payload.body.bookTicketResponse.message ,
+  ticketDetails: {
+    bookingID: payload.body.bookTicketResponse.bookingID ,
+    mobileNumber: vars.originalPayload.mobileNumber,
+    movieName: vars.originalPayload.movieName,
+    showID: vars.originalPayload.showID,
+    audio: vars.originalPayload.audio,
+    format: vars.originalPayload.format ,
+    theaterName: vars.originalPayload.theaterName,
+    bookingTime: vars.originalPayload.bookingTime,
+    amountPaid: vars.originalPayload.netAmount,
+    showTiming: vars.originalPayload.showTiming,
+    numberOfSeats: vars.originalPayload.numberOfSeats,
+    seatNumbers: vars.originalPayload.seatNumbers
+  }
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform
+					doc:name="Set Error Response"
+					doc:id="fb7dade7-081f-431a-9187-d8b3fabe30a4"
+				>
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.bookTicketResponse]]></ee:set-payload>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus"><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<json-logger:logger doc:name="End Log" doc:id="ffc4de10-069d-4716-aca8-1a5180d70376" config-ref="JSON_Logger_Config" tracePoint="END" message="Response for GET/bookings endpoint"/>
+	</flow>
+	<flow
+		name="GET\discounts"
+		doc:id="ab862d62-cfe5-4dce-bf18-77a143f09504"
+	>
+		<json-logger:logger doc:name="Start Log" doc:id="cbb124b1-112b-49f6-9d81-8ba71ed2f8ec" config-ref="JSON_Logger_Config" message="Request received for GET/discounts endpoint"/>
+		<ee:transform
+			doc:name="Transform Message To Soap Request"
+			doc:id="97151f04-08a8-4761-8743-0eba6ba1dff5"
+		>
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://localhost:8081/ticket-booking-service/
+---
+{
+	ns0#getDiscount: {
+		numberOfSeats: attributes.queryParams.numberOfSeats,
+		amountPayable: attributes.queryParams.amountPayable,
+		showID: attributes.queryParams.showID
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume Discount WS" doc:id="355282a4-be59-4f1c-b474-51db4745c291" config-ref="Web_Service_Consumer_Config" operation="getDiscount"/>
+		<ee:transform
+			doc:name="Transform Message To Response Payload"
+			doc:id="03871128-f1b5-4c19-86a0-1f3268343429"
+		>
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="End Log" doc:id="1b079ec0-b7cd-4edf-88e6-dda937ad0661" config-ref="JSON_Logger_Config" tracePoint="END" message="Response for GET/discounts endpoint"/>
+	</flow>
+	
+	
+	</mule>

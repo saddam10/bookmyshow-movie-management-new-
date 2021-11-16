@@ -1,0 +1,37 @@
+http:
+  port: "8081"
+  host: 0.0.0.0
+
+
+db:
+  host: "sql6.freemysqlhosting.net"
+  port: "3306"
+  username: "sql6447382" 
+  password: "qBqewZ1CGl"
+  database-name: "sql6447382"
+  reconnection-strategy-frequency-ms : "2000"
+  reconnection-strategy-attempts : "2"
+  
+mule:
+  env: "dev"
+  
+soap:
+  #wsdlLocation: "http://localhost:8081/ticket-booking-service/ticket-booking-serviceSOAP?wsdl"
+  # address: "http://localhost:8081/ticket-booking-service/ticket-booking-serviceSOAP"
+  wsdlLocation: "http://bookmyshow-order-management.us-e2.cloudhub.io/ticket-booking-service/ticket-booking-serviceSOAP?wsdl"
+  address: "http://bookmyshow-order-management.us-e2.cloudhub.io/ticket-booking-service/ticket-booking-serviceSOAP"
+  service: "ticket-booking-service"
+  port: "ticket-booking-serviceSOAP"
+  reconnection-strategy-frequency-ms : "2000"
+  reconnection-strategy-attempts : "2"
+  
+policy:
+  autodiscovery-id: "17421577"
+  
+key: "test123"
+
+json:
+  logger:
+    application:
+      name: "test"
+      version: "test"

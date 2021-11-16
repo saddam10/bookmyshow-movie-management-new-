@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mulexmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd "
+>
+	<flow
+		name="bookmyshow-main"
+		doc:id="52feed6f-2a28-40b1-a565-8275c719f25e"
+	>
+		<http:listener
+			config-ref="bookmyshow-httpListenerConfig"
+			path="/api/*"
+		>
+			<http:response statusCode="#[vars.httpStatus default 200]">
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:response>
+			<http:error-response statusCode="#[vars.httpStatus default 500]">
+				<http:body>#[payload]</http:body>
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:error-response>
+		</http:listener>
+		<apikit:router
+			config-ref="bookmyshow-config"
+			doc:id="8ce683fc-3682-42d0-a79e-fdd6b6d5d992" />
+	</flow>
+	  <flow name="bookmyshow-console">
+        <http:listener config-ref="bookmyshow-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="bookmyshow-config" />
+        </flow>
+	<flow name="get:\discounts:bookmyshow-config">
+		<flow-ref
+			doc:name="GET\discounts"
+			doc:id="adf3f74b-a134-4ee1-acea-e2a626f9e1ea"
+			name="GET\discounts" />
+	</flow>
+	<flow name="get:\movies:bookmyshow-config">
+		<flow-ref
+			doc:name="GET\movies"
+			doc:id="341c0142-501f-46a5-965e-32314562d142"
+			name="GET\movies" />
+	</flow>
+	<flow name="get:\schedules:bookmyshow-config">
+		<flow-ref
+			doc:name="POST\schedules"
+			doc:id="7c55309d-0bab-4f17-bd46-f1d5492f6925"
+			name="POST\schedules" />
+	</flow>
+	<flow name="get:\movies\(movie_id):bookmyshow-config">
+		<flow-ref
+			doc:name="GET\movie-details"
+			doc:id="e301108c-2a5a-4829-b5fd-9d823f56f4f6"
+			name="GET\movie-details" />
+	</flow>
+	<flow name="post:\bookings:application\json:bookmyshow-config">
+		<flow-ref
+			doc:name="POST\bookings"
+			doc:id="dadff4ba-214f-49dc-b722-951a4e3ca4fe"
+			name="POST\bookings" />
+	</flow>
+</mule>

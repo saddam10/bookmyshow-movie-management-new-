@@ -1,0 +1,30 @@
+{
+  "headers": {
+    "client_id": "f5073b37f413480e8e2e887f49eb4e0e",
+    "client_secret": "E1cb3144976941C0A931392aC1774a5E",
+    "content-type": "application/json",
+    "user-agent": "PostmanRuntime/7.28.4",
+    "accept": "*/*",
+    "postman-token": "6bf5640f-1de4-469a-8368-83b7fdb13f6f",
+    "host": "localhost:8081",
+    "accept-encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "content-length": "357"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "http",
+  "queryParams": {},
+  "requestUri": "/api/bookings",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "maskedRequestPath": "/bookings",
+  "listenerPath": "/api/*",
+  "relativePath": "/api/bookings",
+  "localAddress": "/127.0.0.1:8081",
+  "uriParams": {},
+  "rawRequestUri": "/api/bookings",
+  "rawRequestPath": "/api/bookings",
+  "remoteAddress": "/127.0.0.1:61106",
+  "requestPath": "/api/bookings"
+}
